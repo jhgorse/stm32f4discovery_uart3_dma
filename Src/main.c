@@ -40,6 +40,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart3;
+DMA_HandleTypeDef hdma_usart3_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -50,6 +51,7 @@ UART_HandleTypeDef huart3;
 void SystemClock_Config(void);
 void Error_Handler(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_USART3_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
@@ -78,6 +80,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART3_UART_Init();
 
   /* USER CODE BEGIN 2 */

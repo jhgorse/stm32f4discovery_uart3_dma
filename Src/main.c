@@ -35,7 +35,8 @@
 #include "stm32f4xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -89,9 +90,28 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  char str[30];
+  uint32_t i = 0, j = 0;
+  GPIOD->ODR ^= GPIO_PIN_14;
+
   while (1)
   {
 	  GPIOD->ODR ^= GPIO_PIN_12;
+//	  GPIOD->ODR ^= GPIO_PIN_13;
+//	  GPIOD->ODR ^= GPIO_PIN_14;
+//	  GPIOD->ODR ^= GPIO_PIN_15;
+
+	  if (i % 5000000 == 0) {
+		  sprintf(str, "hello world! %d!\n\r", (int)j);
+		  HAL_UART_Transmit_DMA(&huart3, (uint8_t *)str, strlen(str));
+//		  __HAL_DMA_ENABLE(&hdma_usart3_tx);
+//		  HAL_UART_Transmit(&huart3, str, sizeof(str), 1000);
+
+		  GPIOD->ODR ^= GPIO_PIN_15;
+		  i = 0;
+		  j++;
+	  }
+	  i++;
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -173,6 +193,21 @@ static void MX_USART3_UART_Init(void)
   {
     Error_Handler();
   }
+
+}
+
+/** 
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void) 
+{
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
 
 }
 
@@ -333,6 +368,16 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+	GPIOD->ODR ^= GPIO_PIN_13;
+//	HAL_UART_DMAPause(huart);
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
+	while (1) {
+		GPIOD->ODR ^= GPIO_PIN_14;
+	}
+}
 
 /* USER CODE END 4 */
 

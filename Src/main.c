@@ -62,13 +62,24 @@ static void MX_USART3_UART_Init(void);
 
 /* USER CODE BEGIN 0 */
 
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+//    __HAL_DMA_DISABLE(&hdma_usart3_tx);
+//	HAL_UART_DMAPause(huart);
+	GPIOD->ODR ^= GPIO_PIN_13;
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
+	while (1) {
+		GPIOD->ODR ^= GPIO_PIN_14;
+	}
+}
+
 /* USER CODE END 0 */
 
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -92,6 +103,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   char str[30];
   uint32_t i = 0, j = 0;
+  HAL_StatusTypeDef retval;
   GPIOD->ODR ^= GPIO_PIN_14;
 
   while (1)
@@ -103,8 +115,8 @@ int main(void)
 
 	  if (i % 5000000 == 0) {
 		  sprintf(str, "hello world! %d!\n\r", (int)j);
-		  HAL_UART_Transmit_DMA(&huart3, (uint8_t *)str, strlen(str));
-//		  __HAL_DMA_ENABLE(&hdma_usart3_tx);
+		  retval = HAL_UART_Transmit_DMA(&huart3, (uint8_t *)str, strlen(str));
+//  		  __HAL_DMA_ENABLE(&hdma_usart3_tx);
 //		  HAL_UART_Transmit(&huart3, str, sizeof(str), 1000);
 
 		  GPIOD->ODR ^= GPIO_PIN_15;
@@ -368,16 +380,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
-	GPIOD->ODR ^= GPIO_PIN_13;
-//	HAL_UART_DMAPause(huart);
-}
-
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
-	while (1) {
-		GPIOD->ODR ^= GPIO_PIN_14;
-	}
-}
 
 /* USER CODE END 4 */
 

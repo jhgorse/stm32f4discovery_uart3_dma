@@ -62,16 +62,29 @@ static void MX_USART3_UART_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+char	str[30], rx_byte = ' ';
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
-	GPIOD->ODR ^= GPIO_PIN_13;
+//	GPIOD->ODR ^= GPIO_PIN_14;
+	// TODO: unlock TX here
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+//    __HAL_UART_FLUSH_DRREGISTER(huart); // Clear the buffer to prevent overrun
+	if (rx_byte == '\n' || rx_byte == '\r')
+		GPIOD->ODR ^= GPIO_PIN_14;
+	else
+		HAL_UART_Transmit_DMA(huart, (uint8_t *)&rx_byte, sizeof(rx_byte));
+//	else
+		// TODO: push rx_byte onto string until \0
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
 	while (1) {
-		GPIOD->ODR ^= GPIO_PIN_14;
+		GPIOD->ODR ^= GPIO_PIN_15;
 	}
 }
+
 
 /* USER CODE END 0 */
 
@@ -100,10 +113,10 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  char str[30];
   uint32_t i = 0, j = 0;
   HAL_StatusTypeDef retval;
   GPIOD->ODR ^= GPIO_PIN_14;
+  retval = HAL_UART_Receive_DMA(&huart3, (uint8_t *)&rx_byte, sizeof(rx_byte));
 
   while (1)
   {
@@ -113,7 +126,7 @@ int main(void)
 //	  GPIOD->ODR ^= GPIO_PIN_15;
 
 	  if (i % 5000000 == 0) {
-		  sprintf(str, "hello world! %d!\n\r", (int)j);
+		  sprintf(str, "%d hello world! %d %c!\n\r", retval, (int)j, rx_byte);
 		  retval = HAL_UART_Transmit_DMA(&huart3, (uint8_t *)str, strlen(str));
 
 		  GPIOD->ODR ^= GPIO_PIN_15;

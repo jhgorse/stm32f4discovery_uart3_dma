@@ -63,8 +63,6 @@ static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN 0 */
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
-//    __HAL_DMA_DISABLE(&hdma_usart3_tx);
-//	HAL_UART_DMAPause(huart);
 	GPIOD->ODR ^= GPIO_PIN_13;
 }
 
@@ -116,8 +114,6 @@ int main(void)
 	  if (i % 5000000 == 0) {
 		  sprintf(str, "hello world! %d!\n\r", (int)j);
 		  retval = HAL_UART_Transmit_DMA(&huart3, (uint8_t *)str, strlen(str));
-//  		  __HAL_DMA_ENABLE(&hdma_usart3_tx);
-//		  HAL_UART_Transmit(&huart3, str, sizeof(str), 1000);
 
 		  GPIOD->ODR ^= GPIO_PIN_15;
 		  i = 0;
